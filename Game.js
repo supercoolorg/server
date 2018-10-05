@@ -60,7 +60,11 @@ class Game {
     }
 
     PhysicsTick(){
-        for(let player of this.players){
+        let posCmd = NetCode.BufferOp(OpCode.SetPos, 1+10*this.players.length);
+
+        for(let i=0; i<this.players.length; i++){
+            let player = this.players[i];
+
             // Check for collisions
             // TODO: test for other player's hitboxes
             if(player.state.pos.y <= GROUND){
@@ -86,22 +90,13 @@ class Game {
             player.state.pos.x += player.state.vel.x * DELTATIME;
             player.state.pos.y += player.state.vel.y * DELTATIME;
 
-            /* TODO !important queue up info for all players in 1 big packet of 11*n bytes
-             * | OpCode | uid | posX | posY |
-             * | empty  | uid | posX | posY |
-             * | empty  | uid | posX | posY |
-             * 
-             * or maybe 11 + 10*(n-1) bytes
-             * | OpCode || uid | posX | posY |
-             * | uid | posX | posY |
-             * | uid | posX | posY |
-             */
-            let posCmd = NetCode.BufferOp(OpCode.SetPos, 11);
-            posCmd.setInt16(1, player.uid, true);
-            posCmd.setFloat32(3, player.state.pos.x, true);
-            posCmd.setFloat32(7, player.state.pos.y, true);
-            NetCode.Broadcast(posCmd.buffer, this.server, this.players);
+            // Populate the command buffer
+            posCmd.setInt16(1+i*10, player.uid, true);
+            posCmd.setFloat32(3+i*10, player.state.pos.x, true);
+            posCmd.setFloat32(7+i*10, player.state.pos.y, true);
         }
+
+        NetCode.Broadcast(posCmd.buffer, this.server, this.players);
     }
 }
 

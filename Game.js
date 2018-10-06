@@ -90,10 +90,14 @@ class Game {
             player.state.pos.x += player.state.vel.x * DELTATIME;
             player.state.pos.y += player.state.vel.y * DELTATIME;
 
+            // Predict that the packet is going to arrive 1 physics update later
+            let predictionX = player.state.pos.x + player.state.vel.x * DELTATIME;
+            let predictionY = player.state.pos.y + player.state.vel.y * DELTATIME;
+
             // Populate the command buffer
             posCmd.setInt16(1+i*10, player.uid, true);
-            posCmd.setFloat32(3+i*10, player.state.pos.x, true);
-            posCmd.setFloat32(7+i*10, player.state.pos.y, true);
+            posCmd.setFloat32(3+i*10, predictionX, true);
+            posCmd.setFloat32(7+i*10, predictionY, true);
         }
 
         NetCode.Broadcast(posCmd.buffer, this.server, this.players);

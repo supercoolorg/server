@@ -65,30 +65,10 @@ class Game {
         for(let i=0; i<this.players.length; i++){
             let player = this.players[i];
 
-            // Check for collisions
-            // TODO: test for other player's hitboxes
-            if(player.state.pos.y <= GROUND){
-                player.state.pos.y = GROUND;
-                player.state.isGrounded = true;
-            } else {
-                player.state.isGrounded = false;
-            }
-
-            // Apply gravity
-            if(player.state.isGrounded){
-                player.state.vel.y = 0;
-                // Setting velocity to 0 would stop jumping
-                if(player.state.nextJump){
-                    player.state.vel.y += player.state.nextJump;
-                    player.state.nextJump = null;
-                }
-            }
-            else if(!player.state.isGrounded)
-                player.state.vel.y += GRAVITY * DELTATIME;
-            
-            // Apply Velocity
-            player.state.pos.x += player.state.vel.x * DELTATIME;
-            player.state.pos.y += player.state.vel.y * DELTATIME;
+            this.computeIsGrounded(player);
+            this.computeGravity(player);
+            this.computeCollisions(player);
+            this.computeMovement(player);
 
             // Predict that the packet is going to arrive 1 physics update later
             let predictionX = player.state.pos.x + player.state.vel.x * DELTATIME;
@@ -101,6 +81,60 @@ class Game {
         }
 
         NetCode.Broadcast(posCmd.buffer, this.server, this.players);
+    }
+
+    computeIsGrounded(player){
+        player.state.isGrounded = false;
+        if(player.state.pos.y <= GROUND){
+            player.state.pos.y = GROUND;
+            player.state.isGrounded = true;
+        } else {
+            for(let j=0; j<this.players.length && !player.state.isGrounded; j++){
+                let other = this.players[j];
+                if(other.uid != player.uid){
+                    if(player.isGroundedOn(other)){
+                        player.state.pos.y = other.state.pos.y + other.size.y/2 + player.size.y/2;
+                        player.state.isGrounded = true;
+                    }
+                }
+            }
+        }
+    }
+
+    computeGravity(player){
+        if(player.state.isGrounded){
+            player.state.vel.y = 0;
+            // Setting velocity to 0 would stop jumping
+            if(player.state.nextJump){
+                player.state.vel.y += player.state.nextJump;
+                player.state.nextJump = null;
+            }
+        } else {
+            player.state.vel.y += GRAVITY * DELTATIME;
+        }
+    }
+
+    // Check for lateral collision
+    computeCollisions(player){
+        player.state.collided = false;
+        for(let j=0; j<this.players.length && !player.state.collided; j++){
+            let other = this.players[j];
+            if(other.uid != player.uid){
+                let touch = player.isTouchingHorizontal(other);
+                if((touch > 0 && player.state.vel.x > 0) ||
+                    (touch < 0 && player.state.vel.x < 0)){
+                        player.state.collided = true;
+                }
+            }
+        }
+    }
+
+    computeMovement(player){
+        // Apply Velocity
+        if(!player.state.collided){
+            player.state.pos.x += player.state.vel.x * DELTATIME;
+        }
+        player.state.pos.y += player.state.vel.y * DELTATIME;
     }
 }
 

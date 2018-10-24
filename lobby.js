@@ -37,6 +37,8 @@ server.on('message', (data, client) => {
         case OpCode.Disconnect:
             game.Disconnect(client.port);
     }
+
+    game.ConnectionStillAlive(client.port);
 });
 
 server.on('listening', () => {

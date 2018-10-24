@@ -15,6 +15,17 @@ class Game {
         setInterval(() => {
             this.PhysicsTick();
         }, DELTATIME * 1000);
+
+        // Check for timeouts
+        let interval = 10 * 1000;
+        setInterval(() => {
+            let time = Date.now();
+            for(let i=0; i<this.players.length; i++){
+                if(time - this.players[i].lastseen >= interval){
+                    this.players.splice(i, 1);
+                }
+            }
+        }, interval)
     }
 
     Connect(socket){
@@ -27,6 +38,14 @@ class Game {
             if(this.players[i].uid == uid){
                 this.players.splice(i, 1);
                 break;
+            }
+        }
+    }
+
+    ConnectionStillAlive(uid){
+        for(let i=0; i<this.players.length; i++){
+            if(this.players[i].uid == uid){
+                this.players[i].lastseen = Date.now();
             }
         }
     }

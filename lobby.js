@@ -23,7 +23,8 @@ server.on('message', (data, client) => {
 
     switch(op){
         case OpCode.Register:
-            game.SpawnPlayer(client);
+            game.Connect(client);
+            game.Spawn(client.port);
             break;
         case OpCode.Jump:
             let jumpHeight = receivedCmd.getFloat32(3, true);
@@ -33,6 +34,8 @@ server.on('message', (data, client) => {
             let moveSpeed = receivedCmd.getFloat32(3, true);
             game.Move(client.port, moveSpeed);
             break;
+        case OpCode.Disconnect:
+            game.Disconnect(client.port);
     }
 });
 

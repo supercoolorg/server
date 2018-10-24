@@ -17,11 +17,31 @@ class Game {
         }, DELTATIME * 1000);
     }
 
-    SpawnPlayer(socket){
+    Connect(socket){
         const player = new Player(socket);
+        this.players.push(player);
+    }
+
+    Disconnect(uid){
+        for(let i=0; i<this.players.length; i++){
+            if(this.players[i].uid == uid){
+                this.players.splice(i, 1);
+                break;
+            }
+        }
+    }
+
+    Spawn(uid){
+        let player;
+        for(let i=0; i<this.players.length; i++){
+            if(this.players[i].uid == uid){
+                player = this.players[i];
+                break;
+            }
+        }
+
         player.state.pos = { x: Math.random()*10 - 5, y: 1 };
         player.state.vel = { x: 0, y: 0 };
-        this.players.push(player);
 
         // Spawn player
         let spawnCmd = NetCode.BufferOp(OpCode.Spawn, 11);

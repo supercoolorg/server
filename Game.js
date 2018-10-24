@@ -22,6 +22,9 @@ class Game {
             let time = Date.now();
             for(let i=0; i<this.players.length; i++){
                 if(time - this.players[i].lastseen >= interval){
+                    let dccmd = NetCode.BufferOp(OpCode.Disconnect, 3);
+                    dccmd.setInt16(1, this.players[i].uid, true);
+                    NetCode.Broadcast(dccmd.buffer, this.server, this.players);
                     this.players.splice(i, 1);
                 }
             }
@@ -36,6 +39,9 @@ class Game {
     Disconnect(uid){
         for(let i=0; i<this.players.length; i++){
             if(this.players[i].uid == uid){
+                let dccmd = NetCode.BufferOp(OpCode.Disconnect, 3);
+                dccmd.setInt16(1, this.players[i].uid, true);
+                NetCode.Broadcast(dccmd.buffer, this.server, this.players);
                 this.players.splice(i, 1);
                 break;
             }

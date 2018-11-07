@@ -6,7 +6,8 @@ const OpCode = {
     Spawn: 4,
     Move: 5,
     Jump: 6,
-    SetPos: 7
+    SetPos: 7,
+    Disconnect : 8
 }
 Object.freeze(OpCode);
 

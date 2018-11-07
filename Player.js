@@ -3,7 +3,8 @@ class Player {
         this.socket = socket;
         this.uid = socket.port;
         this.state = {};
-        this.size = { x: 0.64, y: 1.024 }
+        this.size = { x: 0.64, y: 1.024 };
+        this.lastseen = Date.now();
     }
 
     // Return 0 if no, -1 if left, +1 if right

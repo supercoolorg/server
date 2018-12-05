@@ -5,11 +5,13 @@ const NetCode = require('./NetCode.js').NetCode;
 
 const MM_PORT = 50999;
 const BASE_PORT = 51000;
+const MAX_LOBBIES = 100;
+const MAX_PLAYER_COUNT = 2;
 const forkOpts = {
     stdio: [ 'pipe', 'pipe', 'pipe', 'ipc' ]
 };
 
-const lobbies = []; // Array of lobbies, which ports are lobby+BASE_PORT
+const lobbies = {}; // Object of lobbies, port: process
 
 const server = net.createServer(socket => {
     console.log("New client connected");
@@ -20,29 +22,38 @@ const server = net.createServer(socket => {
         switch(op){
             case OpCode.Queue:
                 // TODO: actual matchmaking
-                let lobby = Math.floor(Math.random() * lobbies.length); // For now let's go fortnite way OMEGALUL
+                let lobby = Matchmake();
 
                 if(!lobbies[lobby]){
                     // Spawn a server for the lobby
-                    const lobbyServer = fork('lobby.js', [lobby+BASE_PORT], forkOpts);
+                    const lobbyServer = fork('lobby.js', [lobby], forkOpts);
                     lobbyServer.stdout.on('data', data => console.log(`[${lobby}]: ${data}`)); // Log its console here as '[lobby]: output'
                     lobbyServer.stderr.on('data', data => console.log(`[${lobby}]: ${data}`));
-                    lobbyServer.on('message', msg => {
-                        if(msg == 'online')
-                            lobbies[lobby].online = true;
+                    lobbyServer.on('message', data => {
+                        switch(data.msg){
+                            case 'Online':
+                                lobbies[lobby].online = true;
+                                break;
+                            case 'PlayerCount':
+                                lobbies[lobby].playerCount = data.args[0];
+                        }
                     })
                     lobbyServer.on('close', code => {
                         // Remove it from the array
-                        lobbies.splice(lobby, 1);
+                        delete lobbies[lobby];
                         console.log(`Killed server ${lobby}`);
                     })
-                    lobbies.push(lobbyServer);
+                    // Defaults
+                    lobbyServer.online = false;
+                    lobbyServer.playerCount = 0;
+
+                    lobbies[lobby] = lobbyServer;
                 }
 
                 let watch = setInterval(()=>{
                     if(!lobbies[lobby].online) return;
                     let bufferView = NetCode.BufferOp(OpCode.FoundMatch, 4);
-                    bufferView.setUint16(1, lobby+BASE_PORT, true);
+                    bufferView.setUint16(1, lobby, true);
                     socket.write(Buffer.from(bufferView.buffer));
 
                     clearInterval(watch);
@@ -53,3 +64,26 @@ const server = net.createServer(socket => {
     });
 })
 .listen(MM_PORT, () => console.log(`master server listening on port ${server.address().port}`));
+
+function Matchmake(){
+    let freePorts = [];
+    let lobbyPorts = Object.keys(lobbies);
+    for(let i=0; i<lobbyPorts.length; i++){
+        let _lobby = lobbies[lobbyPorts[i]];
+        if(_lobby.online && _lobby.playerCount < MAX_PLAYER_COUNT)
+            freePorts.push(lobbyPorts[i]);
+    }
+
+    let ret;
+    if(freePorts.length > 0){
+        ret = freePorts[Math.floor(Math.random() * freePorts.length)];
+    }
+    else{
+        // New random port
+        do {
+            ret = BASE_PORT + Math.floor(Math.random() * MAX_LOBBIES);
+        } while(lobbies[ret] != undefined);
+    }
+
+    return ret;
+}

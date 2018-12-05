@@ -24,6 +24,7 @@ server.on('message', (data, client) => {
     switch(op){
         case OpCode.Register:
             game.Connect(client);
+            process.send({ msg: "PlayerCount", args: [game.players.length] });
             game.Spawn(client.port);
             break;
         case OpCode.Jump:
@@ -43,7 +44,7 @@ server.on('message', (data, client) => {
 
 server.on('listening', () => {
     console.log(`listening on port ${server.address().port}`);
-    process.send('online');
+    process.send({ msg: "Online", args: [] });
 });
 
 server.bind(PORT);

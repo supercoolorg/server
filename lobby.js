@@ -7,7 +7,7 @@ const PORT = process.argv[2]; // 'node lobby.js port'
 
 const server = dgram.createSocket('udp4');
 
-const game = new Game(server);
+const game = new Game(server, process);
 
 server.on('error', (err) => {
     console.log(`error:\n${err.stack}`);
@@ -24,7 +24,6 @@ server.on('message', (data, client) => {
     switch(op){
         case OpCode.Register:
             game.Connect(client);
-            process.send({ msg: "PlayerCount", args: [game.players.length] });
             game.Spawn(client.port);
             break;
         case OpCode.Jump:

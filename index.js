@@ -38,7 +38,7 @@ const server = net.createServer(socket => {
                                 lobbies[lobby].playerCount = data.args[0];
                         }
                     })
-                    lobbyServer.on('close', code => {
+                    lobbyServer.on('exit', code => {
                         // Remove it from the array
                         delete lobbies[lobby];
                         console.log(`Killed server ${lobby}`);

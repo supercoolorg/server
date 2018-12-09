@@ -49,6 +49,8 @@ class Game {
                 break;
             }
         }
+        if(this.players.length == 0)
+            process.exit();
     }
 
     SendPlayerCount(){

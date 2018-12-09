@@ -12,6 +12,7 @@ const game = new Game(server, process);
 server.on('error', (err) => {
     console.log(`error:\n${err.stack}`);
     server.close();
+    process.exit();
 });
 
 server.on('message', (data, client) => {

@@ -1,8 +1,11 @@
+const A_BIT = 0.05;
+
 class Player {
     constructor(socket) {
         this.socket = socket;
         this.uid = socket.port;
         this.state = {};
+        this.input = { x: 0, nextJump: null };
         this.size = { x: 0.64, y: 1.024 };
         this.lastseen = Date.now();
     }
@@ -11,7 +14,7 @@ class Player {
     isTouchingHorizontal(other){
         let myBottom = this.state.pos.y - this.size.y/2;
         let otherTop = other.state.pos.y + other.size.y/2;
-        if(myBottom > otherTop - 0.05){
+        if(myBottom > otherTop - A_BIT){
             return 0;
         }
 
@@ -32,26 +35,28 @@ class Player {
 
     isGroundedOn(other){
         if(this.state.vel.y > 0){
-            return 0;
+            return false;
         }
 
         let myLeft = this.state.pos.x - this.size.x/2;
         let otherRight = other.state.pos.x + other.size.x/2;
         if(myLeft >= otherRight){
-            return 0;
+            return false;
         }
 
         let myRight = this.state.pos.x + this.size.x/2;
         let otherLeft = other.state.pos.x - other.size.x/2;
         if(myRight <= otherLeft){
-            return 0;
+            return false;
         }
 
         let myBottom = this.state.pos.y - this.size.y/2;
         let otherTop = other.state.pos.y + other.size.y/2;
-        if(myBottom <= otherTop && myBottom > otherTop - 0.1){
-            return 1;
+        if(myBottom <= otherTop + A_BIT && myBottom > otherTop - A_BIT){
+            return true;
         }
+
+        return false;
     }
 }
 

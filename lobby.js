@@ -36,6 +36,12 @@ server.on('message', (data, client) => {
             break;
         case OpCode.Disconnect:
             game.Disconnect(client.port);
+            break;
+        case OpCode.Ping:
+            let pong = NetCode.BufferOp(OpCode.Ping, 4);
+            pong.setInt16(1, client.port, true);
+            server.send(Buffer.from(pong.buffer), client.port, client.address);
+            break;
     }
 
     game.ConnectionStillAlive(client.port);

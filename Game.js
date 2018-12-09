@@ -7,10 +7,11 @@ const GRAVITY = -9.81 * 1.5;
 const GROUND = 0;
 
 class Game {
-    constructor(serverSocket) {
+    constructor(serverSocket, process) {
         this.players = [];
         this.blocks = [];
         this.server = serverSocket;
+        this.process = process;
 
         setInterval(() => {
             this.PhysicsTick();
@@ -34,6 +35,7 @@ class Game {
     Connect(socket){
         const player = new Player(socket);
         this.players.push(player);
+        this.SendPlayerCount();
     }
 
     Disconnect(uid){
@@ -43,9 +45,16 @@ class Game {
                 dccmd.setInt16(1, this.players[i].uid, true);
                 NetCode.Broadcast(dccmd.buffer, this.server, this.players);
                 this.players.splice(i, 1);
+                this.SendPlayerCount();
                 break;
             }
         }
+        if(this.players.length == 0)
+            process.exit();
+    }
+
+    SendPlayerCount(){
+        process.send({ msg: "PlayerCount", args: [this.players.length] });
     }
 
     ConnectionStillAlive(uid){

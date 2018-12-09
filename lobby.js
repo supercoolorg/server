@@ -7,11 +7,12 @@ const PORT = process.argv[2]; // 'node lobby.js port'
 
 const server = dgram.createSocket('udp4');
 
-const game = new Game(server);
+const game = new Game(server, process);
 
 server.on('error', (err) => {
     console.log(`error:\n${err.stack}`);
     server.close();
+    process.exit();
 });
 
 server.on('message', (data, client) => {
@@ -49,7 +50,7 @@ server.on('message', (data, client) => {
 
 server.on('listening', () => {
     console.log(`listening on port ${server.address().port}`);
-    process.send('online');
+    process.send({ msg: "Online", args: [] });
 });
 
 server.bind(PORT);

@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "accurate-interval": "^1.0.9",
     "dgram": "^1.0.1",
     "net": "^1.0.2"
   }

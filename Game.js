@@ -1,6 +1,7 @@
 const Player = require('./Player.js');
 const OpCode = require('./NetCode.js').OpCode;
 const NetCode = require('./NetCode.js').NetCode;
+const accurateInterval = require('accurate-interval');
 
 const DELTATIME = 0.01; // Matches FixedUpdate on client side
 const GRAVITY = -9.81 * 1.5;
@@ -14,9 +15,9 @@ class Game {
         this.server = serverSocket;
         this.process = process;
 
-        setInterval(() => {
+        accurateInterval(() => {
             this.PhysicsTick();
-        }, DELTATIME * 1000);
+        }, DELTATIME * 1000, { aligned: true, immediate: true });
 
         // Check for timeouts
         let interval = 10 * 1000;

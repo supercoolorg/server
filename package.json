@@ -1,14 +1,18 @@
 {
   "name": "super-cool-server",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Server for super-cool-game",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/qub3x-2/super-cool-server"
+  },
+  "author": "Alessandro Astone, Andrea Franchini",
+  "license": "GPL-3.0-or-later",
   "dependencies": {
     "accurate-interval": "^1.0.9",
     "dgram": "^1.0.1",

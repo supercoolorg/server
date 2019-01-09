@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -17,5 +17,8 @@
     "accurate-interval": "^1.0.9",
     "dgram": "^1.0.1",
     "net": "^1.0.2"
+  },
+  "devDependencies": {
+    "jest": "^23.6.0"
   }
 }

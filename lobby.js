@@ -1,6 +1,6 @@
 const dgram = require('dgram')
 const OpCode = require('./classes/NetCode.js').OpCode
-const NC = require('./classes/NetCode.js').NetCode
+const NetCode = require('./classes/NetCode.js').NetCode
 const Game = require('./classes/Game.js')
 
 
@@ -24,7 +24,7 @@ server.on('message', (data, client) => {
 
     // 
     let op = receivedCmd.getInt8(0)
-    console.log(`got ${NC.Resolve(op)} from ${client.address}:${client.port}`)
+    console.log(`got ${NetCode.Resolve(op)} from ${client.address}:${client.port}`)
 
     switch (op) {
         case OpCode.Register:
@@ -43,7 +43,7 @@ server.on('message', (data, client) => {
             game.Disconnect(client.port)
             break
         case OpCode.Ping:
-            NC.Do("Ping", [client.port], server, client)
+            NetCode.Do("Ping", [client.port], server, client)
             break
     }
 

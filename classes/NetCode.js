@@ -2,23 +2,18 @@
  * NetCode.js
  */
 
-// Import JSON declaration of opcodes + types
-const opcodes = require("./../opcodes.json")
+// Import JSON declaration of commands + types
+const commands = require("./../commands.json")
 
 
 var OpCode = {}
 
-for (let id in opcodes) {
-    OpCode[id] = opcodes[id].opcode
+for (let id in commands) {
+    OpCode[id] = commands[id].opcode
 }
 
 // Freeze the reference object, thus making it a enum
 Object.freeze(OpCode)
-
-
-console.log("Listing all defined opcodes:")
-console.log(OpCode)
-
 
 class NetCode {
     /**
@@ -26,16 +21,16 @@ class NetCode {
      * @param {string} opcode The name of the operation you want to perform.
      * @param {[any]} params Array of parameters.
      * @param {this.server} sender The sender object (usually the server socket)
-     * @param {Player | Socket} target The destination of the command (can be a player of a group of players, or a socket)
-     * @param {*} except An entity present in target which should be excluded
+     * @param {Player | [Player] | Socket} target The destination of the command
+     * @param {Player} except An player present in target which should be excluded, when target is an array of players.
      */
     static Do(opcode, params, sender, target, except = null) {
-        let op = opcodes[opcode]
+        let command = commands[opcode]
 
-        let buffer = new ArrayBuffer(1 + op.size * params.length / op.params.length)
+        let buffer = new ArrayBuffer(1 + command.size * params.length / command.params.length)
         let view = new DataView(buffer)
 
-        view.setUint8(0, op.opcode)
+        view.setUint8(0, command.opcode)
 
         let padding = 1
 
@@ -45,7 +40,7 @@ class NetCode {
             let typeIndex = i % params.length
 
             // Set offset according to the type of the parameter
-            switch (op.params[typeIndex]) {
+            switch (command.params[typeIndex]) {
                 case "Int16":
                     view.setInt16(padding, value, true)
                     break
@@ -58,7 +53,7 @@ class NetCode {
                     break
             }
 
-            padding += op.size
+            padding += command.size
         }
 
         if (Array.isArray(target)) {
@@ -71,8 +66,7 @@ class NetCode {
             }
         } else {
             // If it's a single target
-            if( typeof target.socket.port === "undefined" &&
-                typeof target.socket.address === "undefined") {
+            if( typeof target.socket === "undefined") {
                 // Probably the target is already a socket
                 sender.send(buffer, target.port, target.address)
             } else {

@@ -1,8 +1,6 @@
 const Player = require('./Player.js')
-const NetCode = require('./../NetCode.js')
+const NetCode = require('./NetCode.js').NetCode
 const accurateInterval = require('accurate-interval')
-
-const OpCodes = NetCode.OpCode
 
 const DELTATIME = 0.01 // Matches FixedUpdate on client side
 const GRAVITY = -9.81 * 1.5
@@ -33,7 +31,7 @@ class Game {
             let time = Date.now()
             for (let i = 0; i < this.players.length; i++) {
                 if (time - this.players[i].lastseen >= interval) {
-                    NC.Do("Disconnect", [
+                    NetCode.Do("Disconnect", [
                         this.players[i].uid
                     ], this.server, this.players)
 
@@ -61,8 +59,8 @@ class Game {
      */
     Disconnect(uid) {
         for (let i = 0; i < this.players.length; i++) {
-            if (this.players[i].uid == uid) {               
-                NC.Do("Disconnect", [
+            if (this.players[i].uid == uid) {
+                NetCode.Do("Disconnect", [
                     this.players[i].uid
                 ], this.server, this.players)
 
@@ -123,7 +121,7 @@ class Game {
         }
 
         // Spawn the new player
-        NC.Do("Spawn", [
+        NetCode.Do("Spawn", [
                 player.uid,
                 player.state.pos.x,
                 player.state.pos.y
@@ -133,7 +131,7 @@ class Game {
         // Tell the new spawned player's client to spawn all the others players
         for (let other of this.players) {
             if (other.uid != player.uid) {
-                NC.Do("Spawn",
+                NetCode.Do("Spawn",
                     [other.uid,
                         other.state.pos.x,
                         other.state.pos.y
@@ -172,16 +170,14 @@ class Game {
     }
 
     /**
-     * Update all physics related stuff about the players,
-     * sending the result to each client.
+     * Update all physics related stuff
      */
     PhysicsTick() {
 
         // Create array of data to send to the players
-        var payload = []
+        let payload = []
 
         for (let player of this.players) {
-
             // Process the position of player
             player.state.vel.x = player.input.x
             this.computeIsGrounded(player)
@@ -198,12 +194,12 @@ class Game {
             ])
         }
 
-        NC.Do("SetPos", payload, this.server, this.players)
+        NetCode.Do("SetPos", payload, this.server, this.players)
     }
 
     /**
      * Set a player isGrounded [Bool] state based on its position.
-     * @param {*} player The selected player
+     * @param {Player} player The selected player
      */
     computeIsGrounded(player) {
         player.state.isGrounded = false
@@ -225,7 +221,7 @@ class Game {
 
     /**
      * Set a player vertical velocity (gravity) based on its position.
-     * @param {*} player The selected player
+     * @param {Player} player The selected player
      */
     computeGravity(player) {
         if (player.state.isGrounded) {
@@ -242,7 +238,7 @@ class Game {
 
     /**
      * Check is colliding on any of its sides (left and right)
-     * @param {*} player The selected player
+     * @param {Player} player The selected player
      */
     computeCollisions(player) {
         player.state.collided = false;
@@ -259,8 +255,8 @@ class Game {
     }
 
     /**
-     * Set a player position based on its horizontal velocity.
-     * @param {*} player The selected player
+     * Set a player position based on its velocity.
+     * @param {Player} player The selected player
      */
     computeMovement(player) {
         // Apply Velocity

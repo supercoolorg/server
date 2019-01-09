@@ -1,7 +1,7 @@
 const net = require('net')
 const fork = require('child_process').fork
 const OpCode = require('./classes/NetCode.js').OpCode
-const NC = require('./classes/NetCode.js').NetCode
+const NetCode = require('./classes/NetCode.js').NetCode
 
 const MM_PORT = 50999
 const BASE_PORT = 51000
@@ -14,11 +14,10 @@ const forkOpts = {
 const lobbies = {} // Object of lobbies, port: process
 
 const server = net.createServer(socket => {
+
     console.log("New client connected")
 
-
     socket.on("error", err => console.log(err))
-
 
     socket.on('data', data => {
         let view = new DataView(data.buffer)
@@ -58,7 +57,7 @@ const server = net.createServer(socket => {
                 let watch = setInterval(() => {
                     if (!lobbies[lobby].online) return
 
-                    WriteBufferOnSocket(socket, lobby)
+                    NetCode.WriteBufferOnSocket(socket, lobby)
 
                     clearInterval(watch)
                 }, 20)

@@ -16,7 +16,6 @@ const lobbies = {} // Object of lobbies, port: process
 const server = net.createServer(socket => {
 
     console.log("New client connected")
-
     socket.on("error", err => console.log(err))
 
     socket.on('data', data => {
@@ -57,7 +56,12 @@ const server = net.createServer(socket => {
                 let watch = setInterval(() => {
                     if (!lobbies[lobby].online) return
 
-                    NetCode.WriteBufferOnSocket(socket, lobby)
+                    let buffer = new ArrayBuffer(4)
+                    let view = new DataView(buffer)
+                    view.setUint8(0, OpCode.FoundMatch)
+                    view.setUint16(1, lobby, true)
+
+                    socket.write(buffer)
 
                     clearInterval(watch)
                 }, 20)

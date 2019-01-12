@@ -1,6 +1,6 @@
 {
   "name": "super-cool-server",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "Server for super-cool-game",
   "main": "index.js",
   "scripts": {

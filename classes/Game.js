@@ -31,9 +31,7 @@ class Game {
             let time = Date.now()
             for (let i = 0; i < this.players.length; i++) {
                 if (time - this.players[i].lastseen >= interval) {
-                    NetCode.Do("Disconnect", [
-                        this.players[i].uid
-                    ], this.server, this.players)
+                    NetCode.Do("Disconnect", [this.players[i].uid], this.server, this.players)
 
                     this.players.splice(i, 1)
                 }
@@ -55,7 +53,7 @@ class Game {
     /**
      * Disconnects a player from the server, removing it from the pool
      * of players in that instance.
-     * @param {string} uid The UID of the player you want to disconnect.
+     * @param {Int} uid The UID of the player you want to disconnect.
      */
     Disconnect(uid) {
         for (let i = 0; i < this.players.length; i++) {
@@ -86,7 +84,7 @@ class Game {
     /**
      * Refresh the .lastseen property of the player Object, which tracks the
      * last time the player was seen online.
-     * @param {string} uid The UID of the player you want to update.
+     * @param {Int} uid The UID of the player you want to update.
      */
     ConnectionStillAlive(uid) {
         for (let player of this.players) {
@@ -100,7 +98,7 @@ class Game {
      * Tells the clients to spawn the new selected player, and
      * then to spawn in the new player's client all the other
      * players.
-     * @param {string} uid The UID of the player you want to spawn-
+     * @param {Int} uid The UID of the player you want to spawn-
      */
     Spawn(uid) {
         let player;
@@ -131,11 +129,10 @@ class Game {
         // Tell the new spawned player's client to spawn all the others players
         for (let other of this.players) {
             if (other.uid != player.uid) {
-                NetCode.Do("Spawn",
-                    [other.uid,
-                        other.state.pos.x,
-                        other.state.pos.y
-                    ],
+                NetCode.Do("Spawn", [
+                    other.uid,
+                    other.state.pos.x,
+                    other.state.pos.y],
                     this.server, player)
             }
         }
@@ -143,7 +140,7 @@ class Game {
 
     /**
      * Make the selected player jump a certain height.
-     * @param {string} uid The UID of the player you want to make jump
+     * @param {Int} uid The UID of the player you want to make jump
      * @param {float} jumpHeight The height of the jump
      */
     Jump(uid, jumpHeight) {
@@ -153,12 +150,11 @@ class Game {
                     player.input.nextJump = jumpHeight
             }
         }
-
     }
 
     /**
      * Make the selected player move at a certain speed.
-     * @param {string} uid The UID of the player you want to move
+     * @param {Int} uid The UID of the player you want to move
      * @param {float} moveSpeed The speed the player should move at
      */
     Move(uid, moveSpeed) {

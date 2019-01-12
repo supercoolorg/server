@@ -40,7 +40,7 @@ class Game {
     }
 
     /**
-     * Connect a player to a socket and add it to the pool
+     * Create a player instance linked to its socket and add it to the pool
      * of players in that instance.
      * @param {*} socket The server socket you want to connect to.
      */

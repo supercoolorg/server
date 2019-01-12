@@ -66,7 +66,7 @@ class NetCode {
             }
         } else {
             // If it's a single target
-            if( typeof target.socket === "undefined") {
+            if(typeof target.socket === "undefined") {
                 // Probably the target is already a socket
                 sender.send(buffer, target.port, target.address)
             } else {

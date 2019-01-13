@@ -14,8 +14,8 @@ const forkOpts = {
 const lobbies = {} // Object of lobbies, port: process
 
 const server = net.createServer(socket => {
-
     console.log("New client connected")
+    
     socket.on("error", err => console.log(err))
 
     socket.on('data', data => {

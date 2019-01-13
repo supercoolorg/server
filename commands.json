@@ -1,61 +1,51 @@
 {
     "Error": {
         "opcode": 0,
-        "name": "Error",
         "params": [],
         "size": 0
     },
     "Queue": {
         "opcode": 1,
-        "name": "Queue",
         "params": [],
         "size": 0
     },
     "FoundMatch": {
         "opcode": 2,
-        "name": "FoundMatch",
         "params": ["Uint16"],
         "size": 2
     },
     "Register": {
         "opcode": 3,
-        "name": "Register",
         "params": [],
         "size": 0
     },
     "Spawn": {
         "opcode": 4,
-        "name": "Spawn",
         "params": ["Uint16", "Float32", "Float32"],
         "size": 10
     },
     "Move": {
         "opcode": 5,
-        "name": "Move",
         "params": [],
         "size": 0
     },
     "Jump": {
         "opcode": 6,
-        "name": "Jump",
         "params": [],
         "size": 0
     },
     "SetPos": {
         "opcode": 7,
-        "name": "SetPos",
         "params": ["Uint16", "Float32", "Float32", "Float32", "Float32"],
         "size": 18
     },
     "Disconnect": {
         "opcode": 8,
-        "name": "Disconnect",
         "params": ["Uint16"],
         "size": 2
     },
     "Ping": {
         "opcode": 9,
-        "name": "Ping",
         "params": ["Int16"],
         "size": 2
     }

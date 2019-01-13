@@ -31,7 +31,7 @@ class Game {
             let time = Date.now()
             for (let i = 0; i < this.players.length; i++) {
                 if (time - this.players[i].lastseen >= interval) {
-                    NetCode.Do("Disconnect", [this.players[i].uid], this.server, this.players)
+                    NetCode.Send("Disconnect", [this.players[i].uid], this.server, this.players)
 
                     this.players.splice(i, 1)
                 }
@@ -58,7 +58,7 @@ class Game {
     Disconnect(uid) {
         for (let i = 0; i < this.players.length; i++) {
             if (this.players[i].uid == uid) {
-                NetCode.Do("Disconnect", [this.players[i].uid], this.server, this.players)
+                NetCode.Send("Disconnect", [this.players[i].uid], this.server, this.players)
 
                 this.players.splice(i, 1)
                 this.SendPlayerCount()
@@ -117,7 +117,7 @@ class Game {
         }
 
         // Spawn the new player
-        NetCode.Do("Spawn", [
+        NetCode.Send("Spawn", [
                 player.uid,
                 player.state.pos.x,
                 player.state.pos.y
@@ -126,7 +126,7 @@ class Game {
         // Tell the new spawned player's client to spawn all the others players
         for (let other of this.players) {
             if (other.uid != player.uid) {
-                NetCode.Do("Spawn", [
+                NetCode.Send("Spawn", [
                         other.uid,
                         other.state.pos.x,
                         other.state.pos.y
@@ -166,7 +166,6 @@ class Game {
      * Update all physics related stuff
      */
     PhysicsTick() {
-
         // Create array of data to send to the players
         let payload = []
 
@@ -187,7 +186,7 @@ class Game {
             ])
         }
 
-        NetCode.Do("SetPos", payload, this.server, this.players)
+        NetCode.Send("SetPos", payload, this.server, this.players)
     }
 
     /**

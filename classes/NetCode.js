@@ -23,13 +23,12 @@ class NetCode {
      * @param {Player | [Player] | Socket} target The destination of the command
      * @param {Player} except An player present in target which should be excluded, when target is an array of players.
      */
-    static Do(opcode, params, sender, target, except = null) {
+    static Send(opcode, params, sender, target, except = null) {
         let command = commands[opcode]
 
         let buffer = new ArrayBuffer(1 + command.size * params.length / command.params.length)
         let view = new DataView(buffer)
         view.setUint8(0, command.opcode)
-
         let padding = 1
 
         for (let i = 0; i < params.length; i++) {

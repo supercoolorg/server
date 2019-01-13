@@ -5,8 +5,7 @@
 // Import JSON declaration of commands + types
 const commands = require("./../commands.json")
 
-
-var OpCode = {}
+let OpCode = {}
 
 for (let id in commands) {
     OpCode[id] = commands[id].opcode

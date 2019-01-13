@@ -58,9 +58,7 @@ class Game {
     Disconnect(uid) {
         for (let i = 0; i < this.players.length; i++) {
             if (this.players[i].uid == uid) {
-                NetCode.Do("Disconnect", [
-                    this.players[i].uid
-                ], this.server, this.players)
+                NetCode.Do("Disconnect", [this.players[i].uid], this.server, this.players)
 
                 this.players.splice(i, 1)
                 this.SendPlayerCount()
@@ -123,17 +121,16 @@ class Game {
                 player.uid,
                 player.state.pos.x,
                 player.state.pos.y
-            ],
-            this.server, this.players)
+            ], this.server, this.players)
 
         // Tell the new spawned player's client to spawn all the others players
         for (let other of this.players) {
             if (other.uid != player.uid) {
                 NetCode.Do("Spawn", [
-                    other.uid,
-                    other.state.pos.x,
-                    other.state.pos.y],
-                    this.server, player)
+                        other.uid,
+                        other.state.pos.x,
+                        other.state.pos.y
+                    ], this.server, player)
             }
         }
     }

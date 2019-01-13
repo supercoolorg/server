@@ -22,7 +22,6 @@ server.on('message', (data, client) => {
     // If the command is empty, return
     if (receivedCmd.byteLength <= 0) return
 
-    // 
     let op = receivedCmd.getInt8(0)
     console.log(`got ${NetCode.Resolve(op)} from ${client.address}:${client.port}`)
 

@@ -24,7 +24,7 @@ server.on('message', (data, client) => {
 
     // 
     let op = receivedCmd.getInt8(0)
-    console.log(`got ${NetCode.Resolve(op)} from ${client.address}:${client.port}`)
+    console.log(`got ${NetCode.ResolveOpCode(op)} from ${client.address}:${client.port}`)
 
     switch (op) {
         case OpCode.Register:

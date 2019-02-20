@@ -31,9 +31,7 @@ class Game {
             let time = Date.now()
             for (let i = 0; i < this.players.length; i++) {
                 if (time - this.players[i].lastseen >= interval) {
-                    NetCode.Do("Disconnect", [
-                        this.players[i].uid
-                    ], this.server, this.players)
+                    NetCode.Send("Disconnect", [this.players[i].uid], this.server, this.players)
 
                     this.players.splice(i, 1)
                 }
@@ -42,7 +40,7 @@ class Game {
     }
 
     /**
-     * Connect a player to a socket and add it to the pool
+     * Create a player instance linked to its socket and add it to the pool
      * of players in that instance.
      * @param {*} socket The server socket you want to connect to.
      */
@@ -55,14 +53,12 @@ class Game {
     /**
      * Disconnects a player from the server, removing it from the pool
      * of players in that instance.
-     * @param {string} uid The UID of the player you want to disconnect.
+     * @param {Int} uid The UID of the player you want to disconnect.
      */
     Disconnect(uid) {
         for (let i = 0; i < this.players.length; i++) {
             if (this.players[i].uid == uid) {
-                NetCode.Do("Disconnect", [
-                    this.players[i].uid
-                ], this.server, this.players)
+                NetCode.Send("Disconnect", [this.players[i].uid], this.server, this.players)
 
                 this.players.splice(i, 1)
                 this.SendPlayerCount()
@@ -86,7 +82,7 @@ class Game {
     /**
      * Refresh the .lastseen property of the player Object, which tracks the
      * last time the player was seen online.
-     * @param {string} uid The UID of the player you want to update.
+     * @param {Int} uid The UID of the player you want to update.
      */
     ConnectionStillAlive(uid) {
         for (let player of this.players) {
@@ -100,7 +96,7 @@ class Game {
      * Tells the clients to spawn the new selected player, and
      * then to spawn in the new player's client all the other
      * players.
-     * @param {string} uid The UID of the player you want to spawn-
+     * @param {Int} uid The UID of the player you want to spawn-
      */
     Spawn(uid) {
         let player;
@@ -121,29 +117,27 @@ class Game {
         }
 
         // Spawn the new player
-        NetCode.Do("Spawn", [
+        NetCode.Send("Spawn", [
                 player.uid,
                 player.state.pos.x,
                 player.state.pos.y
-            ],
-            this.server, this.players)
+            ], this.server, this.players)
 
         // Tell the new spawned player's client to spawn all the others players
         for (let other of this.players) {
             if (other.uid != player.uid) {
-                NetCode.Do("Spawn",
-                    [other.uid,
+                NetCode.Send("Spawn", [
+                        other.uid,
                         other.state.pos.x,
                         other.state.pos.y
-                    ],
-                    this.server, player)
+                    ], this.server, player)
             }
         }
     }
 
     /**
      * Make the selected player jump a certain height.
-     * @param {string} uid The UID of the player you want to make jump
+     * @param {Int} uid The UID of the player you want to make jump
      * @param {float} jumpHeight The height of the jump
      */
     Jump(uid, jumpHeight) {
@@ -153,12 +147,11 @@ class Game {
                     player.input.nextJump = jumpHeight
             }
         }
-
     }
 
     /**
      * Make the selected player move at a certain speed.
-     * @param {string} uid The UID of the player you want to move
+     * @param {Int} uid The UID of the player you want to move
      * @param {float} moveSpeed The speed the player should move at
      */
     Move(uid, moveSpeed) {
@@ -173,7 +166,6 @@ class Game {
      * Update all physics related stuff
      */
     PhysicsTick() {
-
         // Create array of data to send to the players
         let payload = []
 
@@ -194,7 +186,7 @@ class Game {
             ])
         }
 
-        NetCode.Do("SetPos", payload, this.server, this.players)
+        NetCode.Send("SetPos", payload, this.server, this.players)
     }
 
     /**

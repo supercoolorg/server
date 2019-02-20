@@ -5,8 +5,7 @@
 // Import JSON declaration of commands + types
 const commands = require("./../commands.json")
 
-
-var OpCode = {}
+let OpCode = {}
 
 for (let id in commands) {
     OpCode[id] = commands[id].opcode
@@ -24,14 +23,12 @@ class NetCode {
      * @param {Player | [Player] | Socket} target The destination of the command
      * @param {Player} except An player present in target which should be excluded, when target is an array of players.
      */
-    static Do(opcode, params, sender, target, except = null) {
+    static Send(opcode, params, sender, target, except = null) {
         let command = commands[opcode]
 
         let buffer = new ArrayBuffer(1 + command.size * params.length / command.params.length)
         let view = new DataView(buffer)
-
         view.setUint8(0, command.opcode)
-
         let padding = 1
 
         for (let i = 0; i < params.length; i++) {
@@ -43,17 +40,18 @@ class NetCode {
             switch (command.params[typeIndex]) {
                 case "Int16":
                     view.setInt16(padding, value, true)
+                    padding += 2
                     break
                 case "UInt16":
                     view.setUint16(padding, value, true)
+                    padding += 2
                     break
                 case "Float32":
                 default:
                     view.setFloat32(padding, value, true)
+                    padding += 4
                     break
             }
-
-            padding += command.size
         }
 
         if (Array.isArray(target)) {
@@ -66,7 +64,7 @@ class NetCode {
             }
         } else {
             // If it's a single target
-            if( typeof target.socket === "undefined") {
+            if(typeof target.socket === "undefined") {
                 // Probably the target is already a socket
                 sender.send(buffer, target.port, target.address)
             } else {
@@ -77,27 +75,11 @@ class NetCode {
     }
 
     /**
-     * 
      * @param {Int} opcode The OpCode.X enum value
      * @returns {String} The OpCode as string (X)
      */
-    static ResolveOpCode(opcode) {
+    static Resolve(opcode) {
         return Object.keys(OpCode)[opcode]
-    }
-
-    /**
-     * Write the port of the lobby in the buffer,
-     * after finding an online lobby.
-     * @param {*} socket The server socket
-     * @param {*} lobby The port of the lobby that gets online
-     */
-    WriteBufferOnSocket(socket, lobby) {
-        let buffer = new ArrayBuffer(4)
-        let view = new DataView(buffer)
-        view.setUint8(0, OpCode.FoundMatch)
-        view.setUint16(1, lobby, true)
-
-        socket.write(buffer)
     }
 }
 

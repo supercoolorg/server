@@ -1,6 +1,6 @@
 const Player = require('./Player.js');
-const OpCode = require('./NetCode.js').OpCode;
-const NetCode = require('./NetCode.js').NetCode;
+const OpCode = require('../utils/NetCode.js').OpCode;
+const NetCode = require('../utils/NetCode.js').NetCode;
 const accurateInterval = require('accurate-interval');
 
 const DELTATIME = 0.01; // Matches FixedUpdate on client side

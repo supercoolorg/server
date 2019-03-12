@@ -1,6 +1,6 @@
 const dgram = require('dgram');
-const OpCode = require('./NetCode.js').OpCode;
-const NetCode = require('./NetCode.js').NetCode;
+const OpCode = require('../utils/NetCode.js').OpCode;
+const NetCode = require('../utils/NetCode.js').NetCode;
 const Game = require('./Game.js');
 
 const PORT = process.argv[2]; // 'node lobby.js port'

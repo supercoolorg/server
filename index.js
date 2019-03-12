@@ -1,7 +1,7 @@
 const net = require('net');
 const fork = require('child_process').fork;
-const OpCode = require('./NetCode.js').OpCode;
-const NetCode = require('./NetCode.js').NetCode;
+const OpCode = require('./utils/NetCode.js').OpCode;
+const NetCode = require('./utils/NetCode.js').NetCode;
 
 const MM_PORT = 50999;
 const BASE_PORT = 51000;
@@ -26,7 +26,7 @@ const server = net.createServer(socket => {
 
                 if(!lobbies[lobby]){
                     // Spawn a server for the lobby
-                    const lobbyServer = fork('lobby.js', [lobby], forkOpts);
+                    const lobbyServer = fork('lobby/lobby.js', [lobby], forkOpts);
                     lobbyServer.stdout.on('data', data => console.log(`[${lobby}]: ${data}`)); // Log its console here as '[lobby]: output'
                     lobbyServer.stderr.on('data', data => console.log(`[${lobby}]: ${data}`));
                     lobbyServer.on('message', data => {

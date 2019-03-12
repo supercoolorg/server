@@ -51,7 +51,7 @@ const server = net.createServer(socket => {
                 }
 
                 let watch = setInterval(()=>{
-                    if(!lobbies[lobby].online) return;
+                    if(!lobbies[lobby] || !lobbies[lobby].online) return;
                     let bufferView = NetCode.BufferOp(OpCode.FoundMatch, 4);
                     bufferView.setUint16(1, lobby, true);
                     socket.write(Buffer.from(bufferView.buffer));

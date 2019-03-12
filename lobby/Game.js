@@ -34,6 +34,15 @@ class Game {
         }, interval)
     }
 
+    GetPlayer(uid){
+        for(let i=0; i<this.players.length; i++){
+            if(this.players[i].uid == uid){
+                return this.players[i];
+            }
+        }
+        throw `[Game]: [GetPlayer]: Player '${uid}' not found`
+    }
+
     Connect(socket){
         const player = new Player(socket);
         this.players.push(player);
@@ -60,10 +69,9 @@ class Game {
     }
 
     ConnectionStillAlive(uid){
-        for(let i=0; i<this.players.length; i++){
-            if(this.players[i].uid == uid){
-                this.players[i].lastseen = Date.now();
-            }
+        let player = this.GetPlayer(uid);
+        player.lastseen = Date.now();
+    }
         }
     }
 
@@ -99,20 +107,18 @@ class Game {
     }
 
     Jump(uid, jumpHeight){
-        for(let player of this.players){
-            if(player.uid == uid){
-                if(player.state.isGrounded)
-                    player.input.nextJump = jumpHeight;
+        let player = this.GetPlayer(uid);
+        if(player.state.isGrounded)
+            player.input.nextJump = jumpHeight;
             }
         }
         
     }
 
     Move(uid, moveSpeed){
-        for(let player of this.players){
-            if(player.uid == uid){
-                player.input.x = moveSpeed;
-            }
+        let player = this.GetPlayer(uid);
+        player.input.x = moveSpeed;
+    }
         }
     }
 

@@ -1,6 +1,6 @@
 const dgram = require('dgram');
-const OpCode = require('../utils/NetCode.js').OpCode;
-const NetCode = require('../utils/NetCode.js').NetCode;
+const NetCode = require('../utils/NetCode.js');
+const OpCode = require('../utils/Commands.js').OpCode;
 const Game = require('./Game.js');
 
 const PORT = process.argv[2]; // 'node lobby.js port'
@@ -20,7 +20,7 @@ server.on('message', (data, client) => {
     if(receivedCmd.byteLength <= 0) return;
 
     let op = receivedCmd.getInt8(0);
-    console.log(`got ${NetCode.OpCodeToString(op)} from ${client.address}:${client.port}`);
+    console.log(`got ${OpCode.ToString(op)} from ${client.address}:${client.port}`);
 
     switch(op){
         case OpCode.Register:
@@ -39,9 +39,7 @@ server.on('message', (data, client) => {
             game.Disconnect(client.port);
             break;
         case OpCode.Ping:
-            let pong = NetCode.BufferOp(OpCode.Ping, 4);
-            pong.setInt16(1, client.port, true);
-            server.send(Buffer.from(pong.buffer), client.port, client.address);
+            game.Pong(client.port);
             break;
     }
 

@@ -1,7 +1,7 @@
 const net = require('net');
 const fork = require('child_process').fork;
-const OpCode = require('./utils/NetCode.js').OpCode;
-const NetCode = require('./utils/NetCode.js').NetCode;
+const Commands = require('./utils/Commands.js').Commands;
+const OpCode = require('./utils/Commands.js').OpCode;
 
 const MM_PORT = 50999;
 const BASE_PORT = 51000;
@@ -52,9 +52,8 @@ const server = net.createServer(socket => {
 
                 let watch = setInterval(()=>{
                     if(!lobbies[lobby] || !lobbies[lobby].online) return;
-                    let bufferView = NetCode.BufferOp(OpCode.FoundMatch, 4);
-                    bufferView.setUint16(1, lobby, true);
-                    socket.write(Buffer.from(bufferView.buffer));
+                    let matchCmd = new Commands.FoundMatch(lobby);
+                    socket.write(matchCmd.Buffer);
 
                     clearInterval(watch);
                 }, 20);

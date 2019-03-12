@@ -1,6 +1,6 @@
 const Player = require('./Player.js');
-const OpCode = require('../utils/NetCode.js').OpCode;
-const NetCode = require('../utils/NetCode.js').NetCode;
+const NetCode = require('../utils/NetCode.js');
+const Commands = require('../utils/Commands.js').Commands;
 const accurateInterval = require('accurate-interval');
 
 const DELTATIME = 0.01; // Matches FixedUpdate on client side
@@ -25,9 +25,8 @@ class Game {
             let time = Date.now();
             for(let i=0; i<this.players.length; i++){
                 if(time - this.players[i].lastseen >= interval){
-                    let dccmd = NetCode.BufferOp(OpCode.Disconnect, 3);
-                    dccmd.setInt16(1, this.players[i].uid, true);
-                    NetCode.Broadcast(dccmd.buffer, this.server, this.players);
+                    let dcCmd = new Commands.Disconnect(this.players[i].uid);
+                    this.Broadcast(dcCmd);
                     this.players.splice(i, 1);
                 }
             }
@@ -43,6 +42,18 @@ class Game {
         throw `[Game]: [GetPlayer]: Player '${uid}' not found`
     }
 
+    /**
+     * Send command to all connected players
+     * @param {Command} command
+     * @param {uid} except
+     */
+    Broadcast(command, except){
+        for(let player of this.players){
+            if(player.uid != except)
+                NetCode.Send(command, this.server, player.socket);
+        }
+    }
+
     Connect(socket){
         const player = new Player(socket);
         this.players.push(player);
@@ -52,9 +63,8 @@ class Game {
     Disconnect(uid){
         for(let i=0; i<this.players.length; i++){
             if(this.players[i].uid == uid){
-                let dccmd = NetCode.BufferOp(OpCode.Disconnect, 3);
-                dccmd.setInt16(1, this.players[i].uid, true);
-                NetCode.Broadcast(dccmd.buffer, this.server, this.players);
+                let dcCmd = new Commands.Disconnect(this.players[i].uid);
+                this.Broadcast(dcCmd);
                 this.players.splice(i, 1);
                 this.SendPlayerCount();
                 break;
@@ -62,6 +72,12 @@ class Game {
         }
         if(this.players.length == 0)
             process.exit();
+    }
+
+    Pong(uid){
+        let player = this.GetPlayer(uid);
+        let pongCmd = new Commands.Ping(player.uid);
+        NetCode.Send(pongCmd, this.server, player.socket);
     }
 
     SendPlayerCount(){
@@ -72,36 +88,25 @@ class Game {
         let player = this.GetPlayer(uid);
         player.lastseen = Date.now();
     }
-        }
-    }
 
     Spawn(uid){
-        let player;
-        for(let i=0; i<this.players.length; i++){
-            if(this.players[i].uid == uid){
-                player = this.players[i];
-                break;
-            }
-        }
+        let player = this.GetPlayer(uid);
 
         player.state.pos = { x: Math.random()*10 - 5, y: 1 };
         player.state.vel = { x: 0, y: 0 };
 
         // Spawn player
-        let spawnCmd = NetCode.BufferOp(OpCode.Spawn, 11);
-        spawnCmd.setUint16(1, player.uid, true);
-        spawnCmd.setFloat32(3, player.state.pos.x, true);
-        spawnCmd.setFloat32(7, player.state.pos.y, true);
-        NetCode.Broadcast(spawnCmd.buffer, this.server, this.players);
+        let spawnCmd = new Commands.Spawn(player.uid, player.state.pos.y, player.state.pos.y);
+        this.Broadcast(spawnCmd, this.server, this.players);
 
         // Spawn other players in the same lobby
-        var spawnOthersCmd = NetCode.BufferOp(OpCode.Spawn, 11);
+        let spawnOthersCmd = new Commands.Spawn();
         for(let other of this.players){
             if(other.uid != player.uid){
-                spawnOthersCmd.setUint16(1, other.uid, true);
-                spawnOthersCmd.setFloat32(3, other.state.pos.x, true);
-                spawnOthersCmd.setFloat32(7, other.state.pos.y, true);
-                NetCode.Send(spawnOthersCmd.buffer, this.server, player);
+                spawnOthersCmd.SetAt(0, other.uid);
+                spawnOthersCmd.SetAt(1, other.state.pos.x);
+                spawnOthersCmd.SetAt(2, other.state.pos.y);
+                NetCode.Send(spawnOthersCmd, this.server, player.socket);
             }
         }
     }
@@ -110,8 +115,6 @@ class Game {
         let player = this.GetPlayer(uid);
         if(player.state.isGrounded)
             player.input.nextJump = jumpHeight;
-            }
-        }
         
     }
 
@@ -119,12 +122,9 @@ class Game {
         let player = this.GetPlayer(uid);
         player.input.x = moveSpeed;
     }
-        }
-    }
 
     PhysicsTick(){
-        const message_size_per_player = 2+4+4+4+4; // Int16 + 4*Float32
-        let posCmd = NetCode.BufferOp(OpCode.SetPos, 1+message_size_per_player*this.players.length);
+        let playerData = [];
 
         for(let i=0; i<this.players.length; i++){
             let player = this.players[i];
@@ -136,14 +136,15 @@ class Game {
             this.computeMovement(player);
 
             // Populate the command buffer
-            posCmd.setInt16(1+i*message_size_per_player, player.uid, true);
-            posCmd.setFloat32(3+i*message_size_per_player, player.state.pos.x, true);
-            posCmd.setFloat32(7+i*message_size_per_player, player.state.pos.y, true);
-            posCmd.setFloat32(11+i*message_size_per_player, player.state.vel.x, true);
-            posCmd.setFloat32(15+i*message_size_per_player, player.state.vel.y, true);
+            playerData.push(player.uid);
+            playerData.push(player.state.pos.x);
+            playerData.push(player.state.pos.y);
+            playerData.push(player.state.vel.x);
+            playerData.push(player.state.vel.y);
         }
 
-        NetCode.Broadcast(posCmd.buffer, this.server, this.players);
+        let posCmd = new Commands.SetPos(playerData);
+        this.Broadcast(posCmd, this.server, this.players);
     }
 
     computeIsGrounded(player){

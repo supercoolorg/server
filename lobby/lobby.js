@@ -43,7 +43,8 @@ server.on('message', (data, client) => {
             break;
     }
 
-    game.ConnectionStillAlive(client.port);
+    if(op != OpCode.Disconnect)
+        game.ConnectionStillAlive(client.port);
 });
 
 server.on('listening', () => {

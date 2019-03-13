@@ -1,7 +1,7 @@
 const net = require('net');
 const fork = require('child_process').fork;
-const OpCode = require('./NetCode.js').OpCode;
-const NetCode = require('./NetCode.js').NetCode;
+const Commands = require('./utils/Commands.js').Commands;
+const OpCode = require('./utils/Commands.js').OpCode;
 
 const MM_PORT = 50999;
 const BASE_PORT = 51000;
@@ -26,7 +26,7 @@ const server = net.createServer(socket => {
 
                 if(!lobbies[lobby]){
                     // Spawn a server for the lobby
-                    const lobbyServer = fork('lobby.js', [lobby], forkOpts);
+                    const lobbyServer = fork('lobby/lobby.js', [lobby], forkOpts);
                     lobbyServer.stdout.on('data', data => console.log(`[${lobby}]: ${data}`)); // Log its console here as '[lobby]: output'
                     lobbyServer.stderr.on('data', data => console.log(`[${lobby}]: ${data}`));
                     lobbyServer.on('message', data => {
@@ -51,10 +51,9 @@ const server = net.createServer(socket => {
                 }
 
                 let watch = setInterval(()=>{
-                    if(!lobbies[lobby].online) return;
-                    let bufferView = NetCode.BufferOp(OpCode.FoundMatch, 4);
-                    bufferView.setUint16(1, lobby, true);
-                    socket.write(Buffer.from(bufferView.buffer));
+                    if(!lobbies[lobby] || !lobbies[lobby].online) return;
+                    let matchCmd = new Commands.FoundMatch(lobby);
+                    socket.write(matchCmd.Buffer);
 
                     clearInterval(watch);
                 }, 20);

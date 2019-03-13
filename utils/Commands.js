@@ -37,7 +37,7 @@ class Command {
         index++; // Offset it by the opcode slot
         let type = this.model[index];
         let offset = this._getByteOffset(index);
-        return this.view['get'+type](offset);
+        return this.view['get'+type](offset, true);
     }
 
     SetAt(index, data){

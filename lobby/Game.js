@@ -76,7 +76,7 @@ class Game {
 
     Pong(uid){
         let player = this.GetPlayer(uid);
-        let pongCmd = new Commands.Ping(player.uid);
+        let pongCmd = new Commands.Ping();
         NetCode.Send(pongCmd, this.server, player.socket);
     }
 

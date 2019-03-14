@@ -90,7 +90,7 @@ class Disconnect extends Command {
 class Ping extends Command {
     constructor(...args){
         const opcode = OpCode.Ping;
-        const model = ['Int16'];
+        const model = [];
         super(opcode, model, args);
     }
 }

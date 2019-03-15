@@ -5,6 +5,7 @@
         "dbaeumer.vscode-eslint",
         "flowtype.flow-for-vscode",
         "esbenp.prettier-vscode",
-        "Orta.vscode-jest"
+        "Orta.vscode-jest",
+        "redhat.vscode-yaml"
     ]
 }

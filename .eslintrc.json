@@ -19,10 +19,6 @@
                 "SwitchCase": 1
             }
         ],
-        "linebreak-style": [
-            "error",
-            "unix"
-        ],
         "quotes": [
             "error",
             "double"
@@ -54,6 +50,7 @@
             }
         ],
         "no-console": "off",
-        "no-trailing-spaces": "error"
+        "no-trailing-spaces": "error",
+        "space-infix-ops": "error"
     }
 }

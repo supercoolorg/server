@@ -1,5 +1,5 @@
-const Commands = require('../utils/Commands').Commands
-const OpCode = require('../utils/Commands').OpCode
+const Commands = require("../utils/Commands").Commands
+const OpCode = require("../utils/Commands").OpCode
 
 /**
  * Generate a random number of a certain type.
@@ -8,24 +8,24 @@ class Random {
     /**
      * @returns A Uint16 number, between 0 and 2^16-1.
      */
-    static Uint16() {
+    static Uint16(){
         return Math.floor(Math.random() * 65535)
     }
     /**
      * @returns A Float32 number.
      */
-    static Float32() {
+    static Float32(){
         return Math.fround(Math.random())
     }
     /**
      * @returns A random element from an array.
      */
-    static FromArray(x) {
+    static FromArray(x){
         return x[Math.ceil(Math.random * x.length)]
     }
 }
 
-test('Testing command: FoundMatch', () => {
+test("Testing command: FoundMatch", () => {
     let lobby = Random.Uint16()
     let cmd = new Commands.FoundMatch(lobby)
     expect(cmd.GetOpCode()).toBe(OpCode.FoundMatch)
@@ -36,7 +36,7 @@ test('Testing command: FoundMatch', () => {
     expect(cmd.GetAt(0)).toBe(0)
 })
 
-test('Testing command: Spawn', () => {
+test("Testing command: Spawn", () => {
     let id = Random.Uint16()
     let x = Random.Float32()
     let y = Random.Float32()
@@ -52,7 +52,7 @@ test('Testing command: Spawn', () => {
     expect(cmd.GetAt(0)).toBe(0)
 })
 
-test('Testing command: Disconnect', () => {
+test("Testing command: Disconnect", () => {
     let id = Random.Uint16()
     let cmd = new Commands.Disconnect(id)
     expect(cmd.GetOpCode()).toBe(OpCode.Disconnect)
@@ -63,24 +63,24 @@ test('Testing command: Disconnect', () => {
     expect(cmd.GetAt(0)).toBe(0)
 })
 
-test('Testing command: Ping', () => {
+test("Testing command: Ping", () => {
     let cmd = new Commands.Ping()
     expect(cmd.GetOpCode()).toBe(OpCode.Ping)
 })
 
-test('Testing command: SetPos', () => {
+test("Testing command: SetPos", () => {
     let id = Random.Uint16()
     let x = Random.Float32()
     let arr = [id, x, x, x, x]
     let cmd = new Commands.SetPos(arr)
     expect(cmd.GetOpCode()).toBe(OpCode.SetPos)
-    for (let i = 0; i < arr.length; i++) {
+    for (let i = 0; i < arr.length; i++){
         expect(cmd.GetAt(i)).toBe(Math.fround(arr[i]))
     }
     // Test with multiple players (2+)
     arr = arr.concat(arr)
     cmd = new Commands.SetPos(arr)
-    for (let i = 0; i < arr.length; i++) {
+    for (let i = 0; i < arr.length; i++){
         expect(cmd.GetAt(i)).toBe(Math.fround(arr[i]))
     }
     // Test edge case

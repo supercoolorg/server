@@ -1,5 +1,5 @@
-const Commands = require("../utils/Commands").Commands
-const OpCode = require("../utils/Commands").OpCode
+const Commands = require("../src/utils/Commands").Commands
+const OpCode = require("../src/utils/Commands").OpCode
 
 /**
  * Generate a random number of a certain type.

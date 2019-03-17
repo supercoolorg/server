@@ -26,7 +26,7 @@ const server = net.createServer(socket => {
 
                 if(!lobbies[lobby]){
                     // Spawn a server for the lobby
-                    const lobbyServer = fork("lobby/lobby.js", [lobby], forkOpts)
+                    const lobbyServer = fork("src/lobby/lobby.js", [lobby], forkOpts)
                     lobbyServer.stdout.on("data", data => console.log(`[${lobby}]: ${data}`)) // Log its console here as '[lobby]: output'
                     lobbyServer.stderr.on("data", data => console.log(`[${lobby}]: ${data}`))
                     lobbyServer.on("message", data => {

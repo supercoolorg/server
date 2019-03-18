@@ -1,6 +1,6 @@
 const Player = require("./Player.js")
 const NetCode = require("../utils/NetCode.js")
-const Commands = require("../utils/Commands.js").Commands
+const { OpCode, Command } = require("../utils/Commands.js")
 const accurateInterval = require("accurate-interval")
 
 const DELTATIME = 0.01 // Matches FixedUpdate on client side
@@ -25,7 +25,7 @@ class Game {
             let time = Date.now()
             for(let i = 0; i < this.players.length; i++){
                 if(time - this.players[i].lastseen >= interval){
-                    let dcCmd = new Commands.Disconnect(this.players[i].uid)
+                    let dcCmd = new Command(OpCode.Disconnect, this.players[i].uid)
                     this.Broadcast(dcCmd)
                     this.players.splice(i, 1)
                 }
@@ -63,7 +63,7 @@ class Game {
     Disconnect(uid){
         for(let i = 0; i < this.players.length; i++){
             if(this.players[i].uid == uid){
-                let dcCmd = new Commands.Disconnect(this.players[i].uid)
+                let dcCmd = new Command(OpCode.Disconnect, this.players[i].uid)
                 this.Broadcast(dcCmd)
                 this.players.splice(i, 1)
                 this.SendPlayerCount()
@@ -76,7 +76,7 @@ class Game {
 
     Pong(uid){
         let player = this.GetPlayer(uid)
-        let pongCmd = new Commands.Ping()
+        let pongCmd = new Command(OpCode.Ping)
         NetCode.Send(pongCmd, this.server, player.socket)
     }
 
@@ -96,11 +96,11 @@ class Game {
         player.state.vel = { x: 0, y: 0 }
 
         // Spawn player
-        let spawnCmd = new Commands.Spawn(player.uid, player.state.pos.y, player.state.pos.y)
+        let spawnCmd = new Command(OpCode.Spawn, player.uid, player.state.pos.y, player.state.pos.y)
         this.Broadcast(spawnCmd, this.server, this.players)
 
         // Spawn other players in the same lobby
-        let spawnOthersCmd = new Commands.Spawn()
+        let spawnOthersCmd = new Command(OpCode.Spawn)
         for(let other of this.players){
             if(other.uid != player.uid){
                 spawnOthersCmd.SetAt(0, other.uid)
@@ -115,7 +115,6 @@ class Game {
         let player = this.GetPlayer(uid)
         if(player.state.isGrounded)
             player.input.nextJump = jumpHeight
-
     }
 
     Move(uid, moveSpeed){
@@ -143,7 +142,7 @@ class Game {
             playerData.push(player.state.vel.y)
         }
 
-        let posCmd = new Commands.SetPos(playerData)
+        let posCmd = new Command(OpCode.SetPos, ...playerData)
         this.Broadcast(posCmd, this.server, this.players)
     }
 

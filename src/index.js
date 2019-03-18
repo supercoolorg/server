@@ -1,7 +1,6 @@
 const net = require("net")
 const fork = require("child_process").fork
-const Commands = require("./utils/Commands.js").Commands
-const OpCode = require("./utils/Commands.js").OpCode
+const { OpCode, Command } = require("./utils/Commands.js")
 
 const MM_PORT = 50999
 const BASE_PORT = 51000
@@ -17,9 +16,8 @@ const server = net.createServer(socket => {
     console.log("New client connected")
     socket.on("error", err => console.log(err))
     socket.on("data", data => {
-        let view = new DataView(data.buffer)
-        const op = view.getUint8(0)
-        switch(op){
+        let cmd = Command.From(data.buffer)
+        switch(cmd.GetOpCode()){
             case OpCode.Queue:{
                 // TODO: actual matchmaking
                 let lobby = Matchmake()
@@ -52,7 +50,7 @@ const server = net.createServer(socket => {
 
                 let watch = setInterval( () => {
                     if(!lobbies[lobby] || !lobbies[lobby].online) return
-                    let matchCmd = new Commands.FoundMatch(lobby)
+                    let matchCmd = new Command(OpCode.FoundMatch, lobby)
                     socket.write(matchCmd.Buffer)
 
                     clearInterval(watch)

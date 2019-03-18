@@ -1,5 +1,4 @@
-const Commands = require("../src/utils/Commands").Commands
-const OpCode = require("../src/utils/Commands").OpCode
+const { OpCode, Command } = require("../src/utils/Commands.js")
 
 /**
  * Generate a random number of a certain type.
@@ -27,11 +26,11 @@ class Random {
 
 test("Testing command: FoundMatch", () => {
     let lobby = Random.Uint16()
-    let cmd = new Commands.FoundMatch(lobby)
+    let cmd = new Command(OpCode.FoundMatch, lobby)
     expect(cmd.GetOpCode()).toBe(OpCode.FoundMatch)
     expect(cmd.GetAt(0)).toBe(lobby)
     // Test edge case
-    cmd = new Commands.FoundMatch(65536)
+    cmd = new Command(OpCode.FoundMatch, 65536)
     // Should OF as 0
     expect(cmd.GetAt(0)).toBe(0)
 })
@@ -41,30 +40,30 @@ test("Testing command: Spawn", () => {
     let x = Random.Float32()
     let y = Random.Float32()
 
-    let cmd = new Commands.Spawn(id, x, y)
+    let cmd = new Command(OpCode.Spawn, id, x, y)
     expect(cmd.GetOpCode()).toBe(OpCode.Spawn)
     expect(cmd.GetAt(0)).toBe(id)
-    expect(cmd.GetAt(1)).toBe(Math.fround(x))
-    expect(cmd.GetAt(2)).toBe(Math.fround(y))
+    expect(cmd.GetAt(1)).toBe(x)
+    expect(cmd.GetAt(2)).toBe(y)
     // Test edge case
-    cmd = new Commands.Spawn(65536, 0, 0)
+    cmd = new Command(OpCode.Spawn, 65536, 0, 0)
     // Should OF as 0
     expect(cmd.GetAt(0)).toBe(0)
 })
 
 test("Testing command: Disconnect", () => {
     let id = Random.Uint16()
-    let cmd = new Commands.Disconnect(id)
+    let cmd = new Command(OpCode.Disconnect, id)
     expect(cmd.GetOpCode()).toBe(OpCode.Disconnect)
     expect(cmd.GetAt(0)).toBe(id)
     // Test edge case
-    cmd = new Commands.Spawn(65536, 0, 0)
+    cmd = new Command(OpCode.Disconnect, 65536)
     // Should OF as 0
     expect(cmd.GetAt(0)).toBe(0)
 })
 
 test("Testing command: Ping", () => {
-    let cmd = new Commands.Ping()
+    let cmd = new Command(OpCode.Ping)
     expect(cmd.GetOpCode()).toBe(OpCode.Ping)
 })
 
@@ -72,19 +71,19 @@ test("Testing command: SetPos", () => {
     let id = Random.Uint16()
     let x = Random.Float32()
     let arr = [id, x, x, x, x]
-    let cmd = new Commands.SetPos(arr)
+    let cmd = new Command(OpCode.SetPos, ...arr)
     expect(cmd.GetOpCode()).toBe(OpCode.SetPos)
     for (let i = 0; i < arr.length; i++){
-        expect(cmd.GetAt(i)).toBe(Math.fround(arr[i]))
+        expect(cmd.GetAt(i)).toBe(arr[i])
     }
     // Test with multiple players (2+)
     arr = arr.concat(arr)
-    cmd = new Commands.SetPos(arr)
+    cmd = new Command(OpCode.SetPos, ...arr)
     for (let i = 0; i < arr.length; i++){
-        expect(cmd.GetAt(i)).toBe(Math.fround(arr[i]))
+        expect(cmd.GetAt(i)).toBe(arr[i])
     }
     // Test edge case
-    cmd = new Commands.Spawn([65536, 0, 0, 0, 0])
+    cmd = new Command(OpCode.SetPos, 65536, 0, 0, 0, 0)
     // Should OF as 0
     expect(cmd.GetAt(0)).toBe(0)
 })

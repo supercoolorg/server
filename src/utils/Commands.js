@@ -17,11 +17,32 @@ const OpCode = {
 }
 Object.freeze(OpCode)
 
+const Models = new Map([
+    [OpCode.Error, []],
+    [OpCode.Queue, []],
+    [OpCode.FoundMatch, ["Uint16"]],
+    [OpCode.Register, []],
+    [OpCode.Spawn, ["Uint16", "Float32", "Float32"]],
+    [OpCode.Move, ["Float32"]],
+    [OpCode.Jump, ["Float32"]],
+    [OpCode.SetPos, ["Uint16", "Float32", "Float32", "Float32", "Float32"]],
+    [OpCode.Disconnect, ["Uint16"]],
+    [OpCode.Ping, []]
+])
+
 class Command {
-    constructor(opcode, model, args){
-        model.unshift("Uint8")
-        this.model = model
-        this.view = new DataView(new ArrayBuffer(ByteCode.GetByteCount(this.model)))
+    constructor(opcode, ...args){
+        this.model = Models.get(opcode)
+        this.modelByteCount = ByteCode.GetByteCount(this.model)
+
+        // Repetitions of the model
+        let n = 1
+        if (this.model.length != 0){
+            // If args are not enough to fill the model, we can assume it's 1 repetition
+            // and the buffer going to be filled in later with SetAt.
+            n = Math.max(1, Math.floor(args.length / this.model.length))
+        }
+        this.view = new DataView(new ArrayBuffer(1 +  this.modelByteCount * n))
         this.view.setUint8(0, opcode)
 
         for(let i = 0; i < args.length; i++){
@@ -34,15 +55,13 @@ class Command {
     }
 
     GetAt(index){
-        index++ // Offset it by the opcode slot
-        let type = this.model[index]
+        let type = this.model[index % this.model.length]
         let offset = this._getByteOffset(index)
         return this.view["get" + type](offset, true)
     }
 
     SetAt(index, data){
-        index++ // Offset it by the opcode slot
-        let type = this.model[index]
+        let type = this.model[index % this.model.length]
         let offset = this._getByteOffset(index)
         this.view["set" + type](offset, data, true)
     }
@@ -51,65 +70,31 @@ class Command {
         return Buffer.from(this.view.buffer)
     }
 
-    _getByteOffset(index){
-        if(index > this.model.length)
-            throw `[Command]: [_getByteOffset]: Index ${index} is out of bounds`
+    /**
+     * Create Command from an existing Buffer
+     * The buffer must contain a known OpCode in the first byte
+     * @param {ArrayBuffer} buffer
+     * @returns {Command}
+     */
+    static From(buffer){
+        let view = new DataView(buffer)
+        let op = view.getUint8(0)
+        let cmd = new Command(op)
+        cmd.view = view
+        return cmd
+    }
 
-        let offset = 0
-        for(let i = 0; i < index; i++){
+    _getByteOffset(index){
+        if(this.model.length == 0) return 0
+
+        let n = Math.floor(index / this.model.length)
+        let offset = 1 + n * this.modelByteCount
+        for(let i = 0; i < index % this.model.length; i++){
             offset += ByteCode.GetByteCount(this.model[i])
         }
+
         return offset
     }
 }
 
-class FoundMatch extends Command {
-    constructor(...args){
-        const opcode = OpCode.FoundMatch
-        const model = ["Uint16"]
-        super(opcode, model, args)
-    }
-}
-
-class Spawn extends Command {
-    constructor(...args){
-        const opcode = OpCode.Spawn
-        const model = ["Uint16", "Float32", "Float32"]
-        super(opcode, model, args)
-    }
-}
-
-class Disconnect extends Command {
-    constructor(...args){
-        const opcode = OpCode.Disconnect
-        const model = ["Uint16"]
-        super(opcode, model, args)
-    }
-}
-
-class Ping extends Command {
-    constructor(...args){
-        const opcode = OpCode.Ping
-        const model = []
-        super(opcode, model, args)
-    }
-}
-
-class SetPos extends Command {
-    constructor(args){
-        const opcode = OpCode.SetPos
-        let model = ["Uint16", "Float32", "Float32", "Float32", "Float32"]
-
-        // Extend model
-        let mult = args.length / model.length
-        for(let i = 0; i < mult - 1; i++){
-            model = model.concat(model)
-        }
-
-        super(opcode, model, args)
-    }
-}
-
-module.exports = {}
-module.exports.OpCode = OpCode
-module.exports.Commands = { Spawn, SetPos, Disconnect, FoundMatch, Ping }
+module.exports = {OpCode, Command}

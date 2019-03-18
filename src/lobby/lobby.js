@@ -1,5 +1,5 @@
 const dgram = require("dgram")
-const OpCode = require("../utils/Commands.js").OpCode
+const { OpCode, Command } = require("../utils/Commands.js")
 const Game = require("./Game.js")
 
 const PORT = process.argv[2] // 'node lobby.js port'
@@ -15,10 +15,10 @@ server.on("error", (err) => {
 })
 
 server.on("message", (data, client) => {
-    let receivedCmd = new DataView(data.buffer)
-    if(receivedCmd.byteLength <= 0) return
+    if(data.buffer.length <= 0) return
 
-    let op = receivedCmd.getInt8(0)
+    let cmd = Command.From(data.buffer)
+    let op = cmd.GetOpCode()
     console.log(`got ${OpCode.ToString(op)} from ${client.address}:${client.port}`)
 
     switch(op){
@@ -27,12 +27,12 @@ server.on("message", (data, client) => {
             game.Spawn(client.port)
             break
         case OpCode.Jump:{
-            let jumpHeight = receivedCmd.getFloat32(1, true)
+            let jumpHeight = cmd.GetAt(0)
             game.Jump(client.port, jumpHeight)
             break
         }
         case OpCode.Move:{
-            let moveSpeed = receivedCmd.getFloat32(1, true)
+            let moveSpeed = cmd.GetAt(0)
             game.Move(client.port, moveSpeed)
             break
         }

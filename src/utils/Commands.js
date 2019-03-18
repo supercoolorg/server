@@ -70,6 +70,20 @@ class Command {
         return Buffer.from(this.view.buffer)
     }
 
+    /**
+     * Create Command from an existing Buffer
+     * The buffer must contain a known OpCode in the first byte
+     * @param {ArrayBuffer} buffer
+     * @returns {Command}
+     */
+    static From(buffer){
+        let view = new DataView(buffer)
+        let op = view.getUint8(0)
+        let cmd = new Command(op)
+        cmd.view = view
+        return cmd
+    }
+
     _getByteOffset(index){
         if(this.model.length == 0) return 0
 

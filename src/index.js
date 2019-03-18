@@ -16,9 +16,8 @@ const server = net.createServer(socket => {
     console.log("New client connected")
     socket.on("error", err => console.log(err))
     socket.on("data", data => {
-        let view = new DataView(data.buffer)
-        const op = view.getUint8(0)
-        switch(op){
+        let cmd = Command.From(data.buffer)
+        switch(cmd.GetOpCode()){
             case OpCode.Queue:{
                 // TODO: actual matchmaking
                 let lobby = Matchmake()

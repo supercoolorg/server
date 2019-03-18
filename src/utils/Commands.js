@@ -17,6 +17,19 @@ const OpCode = {
 }
 Object.freeze(OpCode)
 
+const Models = new Map([
+    [OpCode.Error, []],
+    [OpCode.Queue, []],
+    [OpCode.FoundMatch, ["Uint16"]],
+    [OpCode.Register, []],
+    [OpCode.Spawn, ["Uint16", "Float32", "Float32"]],
+    [OpCode.Move, ["Float32"]],
+    [OpCode.Jump, ["Float32"]],
+    [OpCode.SetPos, ["Uint16", "Float32", "Float32", "Float32", "Float32"]],
+    [OpCode.Disconnect, ["Uint16"]],
+    [OpCode.Ping, []]
+])
+
 class Command {
     constructor(opcode, model, args){
         model.unshift("Uint8")
@@ -66,7 +79,7 @@ class Command {
 class FoundMatch extends Command {
     constructor(...args){
         const opcode = OpCode.FoundMatch
-        const model = ["Uint16"]
+        const model = Models.get(opcode)
         super(opcode, model, args)
     }
 }
@@ -74,7 +87,7 @@ class FoundMatch extends Command {
 class Spawn extends Command {
     constructor(...args){
         const opcode = OpCode.Spawn
-        const model = ["Uint16", "Float32", "Float32"]
+        const model = Models.get(opcode)
         super(opcode, model, args)
     }
 }
@@ -82,7 +95,7 @@ class Spawn extends Command {
 class Disconnect extends Command {
     constructor(...args){
         const opcode = OpCode.Disconnect
-        const model = ["Uint16"]
+        const model = Models.get(opcode)
         super(opcode, model, args)
     }
 }
@@ -90,7 +103,7 @@ class Disconnect extends Command {
 class Ping extends Command {
     constructor(...args){
         const opcode = OpCode.Ping
-        const model = []
+        const model = Models.get(opcode)
         super(opcode, model, args)
     }
 }

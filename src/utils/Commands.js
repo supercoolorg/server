@@ -32,9 +32,8 @@ const Models = new Map([
 
 class Command {
     constructor(opcode, model, args){
-        model.unshift("Uint8")
         this.model = model
-        this.view = new DataView(new ArrayBuffer(ByteCode.GetByteCount(this.model)))
+        this.view = new DataView(new ArrayBuffer(1 + ByteCode.GetByteCount(this.model)))
         this.view.setUint8(0, opcode)
 
         for(let i = 0; i < args.length; i++){
@@ -47,14 +46,12 @@ class Command {
     }
 
     GetAt(index){
-        index++ // Offset it by the opcode slot
         let type = this.model[index]
         let offset = this._getByteOffset(index)
         return this.view["get" + type](offset, true)
     }
 
     SetAt(index, data){
-        index++ // Offset it by the opcode slot
         let type = this.model[index]
         let offset = this._getByteOffset(index)
         this.view["set" + type](offset, data, true)
@@ -68,7 +65,7 @@ class Command {
         if(index > this.model.length)
             throw `[Command]: [_getByteOffset]: Index ${index} is out of bounds`
 
-        let offset = 0
+        let offset = 1
         for(let i = 0; i < index; i++){
             offset += ByteCode.GetByteCount(this.model[i])
         }

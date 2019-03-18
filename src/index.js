@@ -1,7 +1,6 @@
 const net = require("net")
 const fork = require("child_process").fork
-const Commands = require("./utils/Commands.js").Commands
-const OpCode = require("./utils/Commands.js").OpCode
+const { OpCode, Command } = require("./utils/Commands.js")
 
 const MM_PORT = 50999
 const BASE_PORT = 51000
@@ -52,7 +51,7 @@ const server = net.createServer(socket => {
 
                 let watch = setInterval( () => {
                     if(!lobbies[lobby] || !lobbies[lobby].online) return
-                    let matchCmd = new Commands.FoundMatch(lobby)
+                    let matchCmd = new Command(OpCode.FoundMatch, lobby)
                     socket.write(matchCmd.Buffer)
 
                     clearInterval(watch)

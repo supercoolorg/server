@@ -3,7 +3,11 @@ node_js:
   - node
 install:
   - npm install
-
-script: npm test
+  - npm install -g codecov
+script:
+  # Run tests
+  - npm test
+  # Codecov report
+  - codecov
 
 cache: npm

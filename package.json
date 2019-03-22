@@ -23,6 +23,8 @@
     "jest-runner-eslint": "^0.7.3"
   },
   "jest": {
+    "coverageDirectory": "./coverage/",
+    "collectCoverage": true,
     "projects": [
       {
         "displayName": "test"

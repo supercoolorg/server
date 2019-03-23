@@ -96,7 +96,7 @@ class Game {
         player.state.vel = { x: 0, y: 0 }
 
         // Spawn player
-        let spawnCmd = new Command(OpCode.Spawn, player.uid, player.state.pos.y, player.state.pos.y)
+        let spawnCmd = new Command(OpCode.Spawn, player.uid, player.state.pos.x, player.state.pos.y)
         this.Broadcast(spawnCmd, this.server, this.players)
 
         // Spawn other players in the same lobby

@@ -12,6 +12,15 @@ class Game {
     }
 
     /**
+     * Set the period of the update in ms.
+     * @param {numer} ms Milliseconds
+     */
+    setUpdateInterval(ms) {
+        if (ms > 0)
+            this.interval = ms
+    }
+
+    /**
      * Every `this.interval`, check if any player got disconnected.
      */
     checkTimeOuts() {

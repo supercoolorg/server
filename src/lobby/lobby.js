@@ -1,8 +1,10 @@
 const dgram = require("dgram")
 const { OpCode, Command } = require("../utils/Commands")
+const Game = require("./Game")
 
 class Lobby {
     /**
+     * @constructor
      * @param {number} port The port on which the server will be listening
      * @param {Player[]} players Array of `Player` class instances
      */
@@ -14,13 +16,15 @@ class Lobby {
     /**
      * Starts the UDP server on the port passed in the constructor.
      */
-    startServer() {
+    start() {
         // Start the UDP server
         let server = dgram.createSocket("udp4")
         server.bind(this.port)
 
         // FIXME: How to extend Lobby and Game?
-        let game
+        let gameClass = this.overrideGame()
+        // Game constructor can accept the interval as third parameter
+        let game = new gameClass(server, this.players)
 
         // Handle errors
         server.on("error", (err) => {
@@ -78,6 +82,16 @@ class Lobby {
      */
     addPlayer(player) {
         this.players.push(player)
+    }
+
+    /**
+     * You should override this method to return *your own*
+     * subclass of Game.
+     * @override
+     * @return {Game} A subclass of Game
+     */
+    overrideGame() {
+        return Game
     }
 }
 

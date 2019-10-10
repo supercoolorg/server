@@ -12,14 +12,6 @@ class Game {
     }
 
     /**
-     * @param {Player} player
-     */
-    addPlayer(player) {
-        // TODO: Check for duplicate
-        this.players.push = player
-    }
-
-    /**
      * Every `this.interval`, check if any player got disconnected.
      */
     checkTimeOuts() {

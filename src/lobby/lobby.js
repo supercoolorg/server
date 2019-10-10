@@ -72,6 +72,13 @@ class Lobby {
         })
 
     }
+
+    /**
+     * @param {Player} player
+     */
+    addPlayer(player) {
+        this.players.push(player)
+    }
 }
 
 

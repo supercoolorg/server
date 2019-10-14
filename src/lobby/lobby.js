@@ -13,9 +13,18 @@ class Lobby {
      * @param {number} port The port on which the server will be listening
      * @param {Player[]} players Array of `Player` class instances
      */
-    constructor(port, players) {
+    constructor(port, players, gameClass = undefined, playerClass = undefined) {
         this.port = port
         this.players = players
+        // FIXME: Any better way to do this?
+        if (gameClass)
+            this.gameClass = gameClass
+        else
+            this.gameClass = this.overrideGame()
+        if (playerClass)
+            this.playerClass = playerClass
+        else
+            this.playerClass = this.overridePlayer()
     }
 
     /**
@@ -26,10 +35,8 @@ class Lobby {
         let server = dgram.createSocket("udp4")
         server.bind(this.port)
 
-        // FIXME: How to extend Lobby and Game?
-        let gameClass = this.overrideGame()
         // Game constructor can accept the interval as third parameter
-        let game = new gameClass(server, this.players)
+        let game = new this.gameClass(server, this.players)
 
         // Handle errors
         server.on("error", (err) => {
@@ -97,6 +104,16 @@ class Lobby {
      */
     overrideGame() {
         return Game
+    }
+
+    /**
+     * You should override this method to return *your own*
+     * subclass of Player.
+     * @override
+     * @return {Game} A subclass of Game
+     */
+    overridePlayer() {
+        return Player
     }
 
     /**

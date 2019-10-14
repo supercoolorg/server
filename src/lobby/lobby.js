@@ -1,7 +1,12 @@
 const dgram = require("dgram")
 const { OpCode, Command } = require("../utils/Commands")
 const Game = require("./Game")
+const Player = require("./Player")
 
+/**
+ * Represents a game lobby, which is comprised of an array of player, an UDP server
+ * and a Game instance. You should extend Lobby, Game and Player
+ */
 class Lobby {
     /**
      * @constructor
@@ -93,10 +98,31 @@ class Lobby {
     overrideGame() {
         return Game
     }
+
+    /**
+     * @param {string[]} argv
+     * @returns {{port: number, players: Player[]}}
+     */
+    static parseArgv(argv) {
+        let ret = {
+            port: 0,
+            players: []
+        }
+        if (argv[2])
+            ret.port = argv[2]
+        if ((argv.length - 2) % 3 === 0) {
+            for (let i = 3; i < argv.length; i++) {
+                let player = new Player(
+                    argv[i],
+                    argv[i + 1],
+                    argv[i + 2]
+                )
+                ret.players.push(player)
+            }
+        } else {
+            throw new Error("Player array is in the wrong format.")
+        }
+    }
 }
-
-
-
-
 
 module.exports = Lobby

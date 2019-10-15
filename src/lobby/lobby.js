@@ -30,7 +30,7 @@ class Lobby {
     /**
      * Starts the UDP server on the port passed in the constructor.
      */
-    start() {
+    Start() {
         // Start the UDP server
         let server = dgram.createSocket("udp4")
         server.bind(this.port)
@@ -92,7 +92,7 @@ class Lobby {
     /**
      * @param {Player} player
      */
-    addPlayer(player) {
+    AddPlayer(player) {
         this.players.push(player)
     }
 
@@ -102,7 +102,7 @@ class Lobby {
      * @override
      * @return {Game} A subclass of Game
      */
-    overrideGame() {
+    OverrideGame() {
         return Game
     }
 
@@ -112,7 +112,7 @@ class Lobby {
      * @override
      * @return {Game} A subclass of Game
      */
-    overridePlayer() {
+    OverridePlayer() {
         return Player
     }
 
@@ -120,7 +120,7 @@ class Lobby {
      * @param {string[]} argv
      * @returns {{port: number, players: Player[]}}
      */
-    static parseArgv(argv) {
+    static ParseArgv(argv) {
         let ret = {
             port: 0,
             players: []

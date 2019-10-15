@@ -3,7 +3,7 @@ class Player {
         this.id = id
         this.address = address
         this.port = port
-        this.lastseen = 0
+        this.lastseen = Date.now()
     }
 }
 

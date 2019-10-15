@@ -6,10 +6,10 @@ class NetCode {
     /**
      * Send command to a Client (e.g.: Player)
      * @param {Command} command
-     * @param {socket} from
-     * @param {socket} to
+     * @param {Socket} from
+     * @param {Socket} to
      */
-    static Send(command, from, to){
+    static Send(command, from, to) {
         from.send(command.Buffer, to.port, to.address)
     }
 }

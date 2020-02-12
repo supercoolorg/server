@@ -13,6 +13,7 @@
         "ecmaVersion": 2018
     },
     "rules": {
+        "no-unused-vars": "warn",
         "indent": [
             "error",
             4,
@@ -43,10 +44,10 @@
             "named": "never",
             "asyncArrow": "never"
         }],
-        "space-before-blocks": ["error",
+        "space-before-blocks": ["warn",
             {
-                "functions": "never",
-                "keywords": "never",
+                "functions": "always",
+                "keywords": "always",
                 "classes": "always" 
             }
         ],

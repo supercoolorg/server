@@ -7,19 +7,19 @@ class Random {
     /**
      * @returns A Uint16 number, between 0 and 2^16-1.
      */
-    static Uint16(){
+    static Uint16() {
         return Math.floor(Math.random() * 65535)
     }
     /**
      * @returns A Float32 number.
      */
-    static Float32(){
+    static Float32() {
         return Math.fround(Math.random())
     }
     /**
      * @returns A random element from an array.
      */
-    static FromArray(x){
+    static FromArray(x) {
         return x[Math.ceil(Math.random * x.length)]
     }
 }
@@ -73,13 +73,13 @@ test("Testing command: SetPos", () => {
     let arr = [id, x, x, x, x]
     let cmd = new Command(OpCode.SetPos, ...arr)
     expect(cmd.GetOpCode()).toBe(OpCode.SetPos)
-    for (let i = 0; i < arr.length; i++){
+    for (let i = 0; i < arr.length; i++) {
         expect(cmd.GetAt(i)).toBe(arr[i])
     }
     // Test with multiple players (2+)
     arr = arr.concat(arr)
     cmd = new Command(OpCode.SetPos, ...arr)
-    for (let i = 0; i < arr.length; i++){
+    for (let i = 0; i < arr.length; i++) {
         expect(cmd.GetAt(i)).toBe(arr[i])
     }
     // Test edge case

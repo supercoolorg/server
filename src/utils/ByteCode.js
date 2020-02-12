@@ -1,9 +1,12 @@
 class ByteCode {
-
-    static GetByteCount(type){
-        if(Array.isArray(type)){
+    /**
+     * Return the size in bytes of representation of the type
+     * @param {string} type
+     */
+    static GetByteCount(type) {
+        if(Array.isArray(type)) {
             let count = 0
-            for(let i = 0; i < type.length; i++){
+            for(let i = 0; i < type.length; i++) {
                 count += this.GetByteCount(type[i])
             }
 
@@ -12,7 +15,7 @@ class ByteCode {
 
         // With some potential performance implications, this *could* be done via a regex
         // This way at least we get to handle unknown types though.
-        switch(type){
+        switch(type) {
             case "Int8":
             case "Uint8":
                 return 1
@@ -26,7 +29,7 @@ class ByteCode {
             case "Float64":
                 return 8
             default:
-                throw `[ByteCode]: [GetByteCount]: Unsupported data type '${type}'`
+                throw new Error(`[ByteCode]: [GetByteCount]: Unsupported data type '${type}'`)
         }
     }
 }

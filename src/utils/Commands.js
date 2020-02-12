@@ -11,7 +11,7 @@ const OpCode = {
     SetPos: 7,
     Disconnect: 8,
     Ping: 9,
-    ToString(op){
+    ToString(op) {
         return Object.keys(this)[op]
     }
 }
@@ -31,13 +31,17 @@ const Models = new Map([
 ])
 
 class Command {
-    constructor(opcode, ...args){
+    /**
+     * @param {number | OpCode} opcode The OpCode of the command
+     * @param  {...any} args An array of parameters fitting to the OpCode
+     */
+    constructor(opcode, ...args) {
         this.model = Models.get(opcode)
         this.modelByteCount = ByteCode.GetByteCount(this.model)
 
         // Repetitions of the model
         let n = 1
-        if (this.model.length != 0){
+        if (this.model.length != 0) {
             // If args are not enough to fill the model, we can assume it's 1 repetition
             // and the buffer going to be filled in later with SetAt.
             n = Math.max(1, Math.floor(args.length / this.model.length))
@@ -45,28 +49,40 @@ class Command {
         this.view = new DataView(new ArrayBuffer(1 +  this.modelByteCount * n))
         this.view.setUint8(0, opcode)
 
-        for(let i = 0; i < args.length; i++){
+        for(let i = 0; i < args.length; i++) {
             this.SetAt(i, args[i])
         }
     }
 
-    GetOpCode(){
+    GetOpCode() {
         return this.view.getUint8(0)
     }
 
-    GetAt(index){
+    /**
+     * Get the value at the corresponding index in the command model
+     * @param {number} index
+     */
+    GetAt(index) {
         let type = this.model[index % this.model.length]
         let offset = this._getByteOffset(index)
         return this.view["get" + type](offset, true)
     }
 
-    SetAt(index, data){
+    /**
+     * Set a value at the corresponding index in the command model
+     * @param {number} index
+     * @param {any} data
+     */
+    SetAt(index, data) {
         let type = this.model[index % this.model.length]
         let offset = this._getByteOffset(index)
         this.view["set" + type](offset, data, true)
     }
 
-    get Buffer(){
+    /**
+     * @returns {Buffer} Buffered representation of the command
+     */
+    get Buffer() {
         return Buffer.from(this.view.buffer)
     }
 
@@ -76,7 +92,7 @@ class Command {
      * @param {ArrayBuffer} buffer
      * @returns {Command}
      */
-    static From(buffer){
+    static From(buffer) {
         let view = new DataView(buffer)
         let op = view.getUint8(0)
         let cmd = new Command(op)
@@ -84,12 +100,12 @@ class Command {
         return cmd
     }
 
-    _getByteOffset(index){
+    _getByteOffset(index) {
         if(this.model.length == 0) return 0
 
         let n = Math.floor(index / this.model.length)
         let offset = 1 + n * this.modelByteCount
-        for(let i = 0; i < index % this.model.length; i++){
+        for(let i = 0; i < index % this.model.length; i++) {
             offset += ByteCode.GetByteCount(this.model[i])
         }
 
